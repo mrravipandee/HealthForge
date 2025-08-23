@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { DoctorContext } from './context/DoctorContext';
 import { AdminContext } from './context/AdminContext';
 import { Route, Routes } from 'react-router-dom'
@@ -18,6 +18,7 @@ import Feedbacks from './pages/Admin/Feedbacks';
 import AmbulanceSection from './pages/Admin/AmbulanceSection';
 import HealthLockAccess from './pages/Doctor/HealthLockAccess';
 import Chatbot from './components/Chatbot';
+import Home from './pages/Admin/Home';
 import DoctorChatbot from './components/DoctorChatbot';
 
 const App = () => {
@@ -32,7 +33,7 @@ const App = () => {
       <div className='flex items-start'>
         <Sidebar />
         <Routes>
-          <Route path='/' element={<></>} />
+          <Route path='/' element={<Home />} />
           <Route path='/admin-dashboard' element={<Dashboard />} />
           <Route path='/all-appointments' element={<AllAppointments />} />
           <Route path='/add-doctor' element={<AddDoctor />} />
