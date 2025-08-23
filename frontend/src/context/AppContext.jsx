@@ -1,13 +1,24 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 
 export const AppContext = createContext()
 
+// Custom hook to use AppContext
+export const useAppContext = () => {
+    const context = useContext(AppContext);
+    if (!context) {
+        throw new Error('useAppContext must be used within an AppContextProvider');
+    }
+    return context;
+};
+
 const AppContextProvider = (props) => {
 
+    const navigate = useNavigate()
     const currencySymbol = '₹'
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
 
     const [doctors, setDoctors] = useState([])
     const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
@@ -35,19 +46,25 @@ const AppContextProvider = (props) => {
     // Getting User Profile using API
     const loadUserProfileData = async () => {
 
+        if (!token) {
+            console.log('No token available, skipping profile load')
+            return
+        }
+
         try {
 
-            const { data } = await axios.get(backendUrl + '/api/user/get-profile', { headers: { token } })
+            const { data } = await axios.get(backendUrl + '/api/user/profile', { headers: { token } })
 
             if (data.success) {
-                setUserData(data.userData)
+                setUserData(data.user)
             } else {
-                toast.error(data.message)
+                console.log('Profile load failed:', data.message)
+                // Don't show error toast for profile load failures
             }
 
         } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+            console.log('Profile load error:', error.message)
+            // Don't show error toast for profile load failures
         }
 
     }
@@ -62,12 +79,19 @@ const AppContextProvider = (props) => {
         }
     }, [token])
 
+    const logout = () => {
+        localStorage.removeItem('token')
+        setToken('')
+        setUserData(false)
+        navigate('/login')
+    }
+
     const value = {
         doctors, getDoctosData,
         currencySymbol,
         backendUrl,
         token, setToken,
-        userData, setUserData, loadUserProfileData
+        userData, setUserData, loadUserProfileData, logout
     }
 
     return (

@@ -1,8 +1,20 @@
 import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
+import { AppContext } from '../context/AppContext'
 
 const Banner = () => {
     const navigate = useNavigate()
+    const { token } = useContext(AppContext)
+
+    const handleCreateAccount = () => {
+        if (token) {
+            navigate('/dashboard')
+        } else {
+            navigate('/login')
+        }
+        scrollTo(0, 0)
+    }
 
     return (
         <div className='relative flex flex-col md:flex-row bg-gradient-to-r from-[#193378]/80 to-blue-500 rounded-xl px-6 sm:px-10 md:px-14 lg:px-16 my-16 md:my-20 mx-4 md:mx-10 overflow-hidden shadow-xl'>
@@ -27,10 +39,10 @@ const Banner = () => {
                 
                 <div className='flex flex-col sm:flex-row gap-4 mt-8'>
                     <button 
-                        onClick={() => { navigate('/login'); scrollTo(0, 0) }} 
+                        onClick={handleCreateAccount} 
                         className='bg-white text-sm sm:text-base text-primary px-6 py-3 rounded-full font-medium hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2'
                     >
-                        <span>Create Account</span>
+                        <span>{token ? 'Go to Dashboard' : 'Create Account'}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                         </svg>

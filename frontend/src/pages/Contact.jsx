@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "",
     message: "",
   });
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,16 +19,35 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    
     setLoading(true);
-    setSuccessMsg("");
-    setErrorMsg("");
 
     try {
-      await axios.post("/api/user/contact", formData);
-      setSuccessMsg("Your message has been sent successfully!");
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      const feedbackData = {
+        userId: "anonymous", // You can replace this with actual user ID if user is logged in
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        rating: rating
+      };
+
+      const response = await axios.post("http://localhost:3000/api/feedback", feedbackData);
+      
+      if (response.data.success) {
+        toast.success("Feedback submitted successfully!");
+        setFormData({ name: "", email: "", message: "" });
+        setRating(0);
+      } else {
+        toast.error(response.data.message || "Failed to submit feedback");
+      }
     } catch (err) {
-      setErrorMsg("Something went wrong. Please try again later.");
+      console.error("Feedback submission error:", err);
+      toast.error(err.response?.data?.message || "Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -39,10 +58,10 @@ const Contact = () => {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
-          Get in <span className="text-[#193378]">Touch</span>
+          Share Your <span className="text-[#193378]">Feedback</span>
         </h1>
         <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-          Have questions or feedback? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+          We value your opinion! Share your experience with HealthForge and help us improve our services. Your feedback is important to us.
         </p>
       </div>
 
@@ -107,8 +126,8 @@ const Contact = () => {
         {/* Right: Contact Form */}
         <div className="w-full lg:w-3/5">
           <div className="bg-white rounded-2xl shadow-md p-8 h-full">
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">Send us a Message</h3>
-            <p className="text-gray-600 mb-8">Fill out the form below and we&apos;ll get back to you shortly.</p>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Feedback Form</h3>
+            <p className="text-gray-600 mb-8">Please share your thoughts about our services. Your feedback helps us improve!</p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -145,21 +164,7 @@ const Contact = () => {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject *
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  placeholder="What is this regarding?"
-                />
-              </div>
+
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
@@ -173,8 +178,35 @@ const Contact = () => {
                   rows={5}
                   required
                   className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                  placeholder="Please describe your inquiry in detail..."
+                  placeholder="Please describe your feedback in detail..."
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Rating *
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoveredRating(star)}
+                      onMouseLeave={() => setHoveredRating(0)}
+                      className="text-2xl transition-colors duration-200"
+                    >
+                      {star <= (hoveredRating || rating) ? (
+                        <span className="text-yellow-400">★</span>
+                      ) : (
+                        <span className="text-gray-300">☆</span>
+                      )}
+                    </button>
+                  ))}
+                  <span className="ml-2 text-sm text-gray-600">
+                    {rating > 0 ? `${rating} star${rating > 1 ? 's' : ''}` : 'Select rating'}
+                  </span>
+                </div>
               </div>
 
               <button
@@ -192,7 +224,7 @@ const Contact = () => {
                   </>
                 ) : (
                   <>
-                    Send Message
+                    Submit Feedback
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                     </svg>
@@ -200,23 +232,7 @@ const Contact = () => {
                 )}
               </button>
 
-              {successMsg && (
-                <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-start gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p>{successMsg}</p>
-                </div>
-              )}
-              
-              {errorMsg && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-lg flex items-start gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p>{errorMsg}</p>
-                </div>
-              )}
+
             </form>
           </div>
         </div>

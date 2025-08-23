@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]">
+    <div className="container mx-auto flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]">
       <img
         onClick={() => navigate("/")}
         className="w-44 cursor-pointer"
@@ -51,13 +51,19 @@ const Navbar = () => {
             <div className="absolute top-0 right-0 pt-14 text-[18px] font-medium text-gray-600 z-20 hidden group-hover:block">
               <div className="min-w-48 bg-gray-50 rounded flex flex-col gap-4 p-4">
                 <p
-                  onClick={() => navigate("/my-profile")}
+                  onClick={() => navigate("/dashboard")}
+                  className="hover:text-black cursor-pointer"
+                >
+                  Dashboard
+                </p>
+                <p
+                  onClick={() => navigate("/dashboard/profile")}
                   className="hover:text-black cursor-pointer"
                 >
                   My Profile
                 </p>
                 <p
-                  onClick={() => navigate("/my-appointments")}
+                  onClick={() => navigate("/dashboard/my-appointments")}
                   className="hover:text-black cursor-pointer"
                 >
                   My Appointments
@@ -107,6 +113,9 @@ const Navbar = () => {
             </NavLink>
             <NavLink onClick={() => setShowMenu(false)} to="/about">
               <p className="px-4 py-2 rounded full inline-block">ABOUT</p>
+            </NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to="/emergency">
+              <p className="px-4 py-2 rounded full inline-block">EMERGENCY</p>
             </NavLink>
             <NavLink onClick={() => setShowMenu(false)} to="/contact">
               <p className="px-4 py-2 rounded full inline-block">CONTACT</p>
