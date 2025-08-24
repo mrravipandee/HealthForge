@@ -15,7 +15,7 @@ class EncryptionService {
     encryptFile(fileBuffer) {
         try {
             const iv = crypto.randomBytes(this.ivLength);
-            const cipher = crypto.createCipher(this.algorithm, this.secretKey);
+            const cipher = crypto.createCipherGCM(this.algorithm, this.secretKey, iv);
             cipher.setAAD(Buffer.from('healthforge-document', 'utf8'));
             
             let encrypted = cipher.update(fileBuffer, null, 'hex');
@@ -44,7 +44,7 @@ class EncryptionService {
             const tag = encryptedBuffer.slice(-this.tagLength);
             const encryptedData = encryptedBuffer.slice(this.ivLength, -this.tagLength);
             
-            const decipher = crypto.createDecipher(this.algorithm, this.secretKey);
+            const decipher = crypto.createDecipherGCM(this.algorithm, this.secretKey, iv);
             decipher.setAuthTag(tag);
             decipher.setAAD(Buffer.from('healthforge-document', 'utf8'));
             

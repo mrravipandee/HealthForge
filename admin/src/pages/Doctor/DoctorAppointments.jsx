@@ -5,8 +5,14 @@ import { assets } from '../../assets/assets'
 
 const DoctorAppointments = () => {
 
-  const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
+  const { dToken,appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
   const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
+
+  // const appointments = ({
+  //   "userId":"68a8dc290cb177dc33249c2d",
+  //   "payment": true,
+  //   "":"",
+  // })
 
   useEffect(() => {
     if (dToken) {
@@ -22,7 +28,7 @@ const DoctorAppointments = () => {
       <div className='bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll'>
         <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
           <p>#</p>
-          <p>Patient</p>
+          {/* <p>Patient</p> */}
           <p>Payment</p>
           <p>Age</p>
           <p>Date & Time</p>

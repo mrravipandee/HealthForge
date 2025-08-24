@@ -40,7 +40,7 @@ const HealthLock = () => {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/patient/documents`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'token': token,
                     'Content-Type': 'application/json'
                 }
             });
@@ -61,7 +61,7 @@ const HealthLock = () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/available-doctors`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'token': token,
                     'Content-Type': 'application/json'
                 }
             });
@@ -108,7 +108,8 @@ const HealthLock = () => {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'token': token
+                    // Don't set Content-Type for FormData - browser will set it automatically
                 },
                 body: formData
             });
@@ -140,24 +141,22 @@ const HealthLock = () => {
     const generateQRCode = async (document) => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/upload`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    healthLockId: document._id,
-                    expiryMinutes: 30
-                })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                setQrData(data.data.qrData);
-                setSelectedDocument(document);
-                setShowQRModal(true);
-            }
+            // Generate QR data using the existing document
+            const qrData = {
+                healthLockId: document._id,
+                patientId: document.patientId,
+                doctorId: document.doctorId,
+                fileName: document.fileName,
+                role: document.role,
+                permissions: document.permissions,
+                type: 'healthlock-access',
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+            
+            setQrData(JSON.stringify(qrData));
+            setSelectedDocument(document);
+            setShowQRModal(true);
         } catch (error) {
             console.error('QR generation error:', error);
             toast.error('Failed to generate QR code');
@@ -170,7 +169,7 @@ const HealthLock = () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/patient/logs/${healthLockId}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'token': token,
                     'Content-Type': 'application/json'
                 }
             });
@@ -193,7 +192,7 @@ const HealthLock = () => {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/healthlock/patient/documents/${healthLockId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'token': token,
                     'Content-Type': 'application/json'
                 }
             });

@@ -12,14 +12,18 @@ import fs from 'fs';
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = 'uploads/healthlock';
+        // Ensure the directory exists
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
+        console.log('Upload directory:', uploadDir);
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'healthlock-' + uniqueSuffix + path.extname(file.originalname));
+        const filename = 'healthlock-' + uniqueSuffix + path.extname(file.originalname);
+        console.log('Generated filename:', filename);
+        cb(null, filename);
     }
 });
 
@@ -41,10 +45,16 @@ const upload = multer({
 // Upload and encrypt document
 const uploadDocument = async (req, res) => {
     try {
+        console.log('Upload document called');
+        console.log('Request body:', req.body);
+        console.log('Request file:', req.file);
+        console.log('User ID:', req.userId);
+        
         const { doctorId, role, permissions, description, expiryMinutes } = req.body;
         const patientId = req.userId;
 
         if (!req.file) {
+            console.log('No file uploaded');
             return res.status(400).json({
                 success: false,
                 message: 'No file uploaded'

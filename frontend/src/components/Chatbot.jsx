@@ -249,7 +249,7 @@ const Chatbot = () => {
           )}
         </button>
       </div>
-
+npm run e
       {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-lg shadow-2xl border border-gray-200 z-50 flex flex-col">
